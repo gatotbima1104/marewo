@@ -33,36 +33,36 @@ tasks:
       - go run ./cmd/bin/main.go ws --port=8080
   build:
     cmds:
-      - go build -o ./digihub-app ./cmd/bin/main.go
+      - go build -o ./marewo-app ./cmd/bin/main.go
   build-dev:
     cmds:
       - git pull
-      - go build -o ./digihub-app ./cmd/bin/main.go
-      - immortalctl stop digihub-dev
-      # - immortalctl halt digihub-dev
-      - mv ./digihub-app ../binaries/digihub-dev
-      # - immortal -c ../binaries/digihub-dev/digihub-dev.yaml
-      - immortalctl start digihub-dev
+      - go build -o ./marewo-app ./cmd/bin/main.go
+      - immortalctl stop marewo-dev
+      # - immortalctl halt marewo-dev
+      - mv ./marewo-app ../binaries/marewo-dev
+      # - immortal -c ../binaries/marewo-dev/marewo-dev.yaml
+      - immortalctl start marewo-dev
       - immortalctl status
   build-staging:
     cmds:
       - git pull
-      - go build -o ./digihub-app ./cmd/bin/main.go
-      - immortalctl stop digihub-staging
-      # - immortalctl halt digihub-staging
-      - mv ./digihub-app ../binaries/digihub-staging
-      # - immortal -c ../binaries/digihub-staging/digihub-staging.yaml
-      - immortalctl start digihub-staging
+      - go build -o ./marewo-app ./cmd/bin/main.go
+      - immortalctl stop marewo-staging
+      # - immortalctl halt marewo-staging
+      - mv ./marewo-app ../binaries/marewo-staging
+      # - immortal -c ../binaries/marewo-staging/marewo-staging.yaml
+      - immortalctl start marewo-staging
       - immortalctl status
   build-production:
     cmds:
       - git pull
-      - go build -o ./digihub-app ./cmd/bin/main.go
-      - immortalctl stop digihub-production
-      # - immortalctl halt digihub-production
-      - mv ./digihub-app ../binaries/digihub-production
-      # - immortal -c ../binaries/digihub-production/digihub-production.yaml
-      - immortalctl start digihub-production
+      - go build -o ./marewo-app ./cmd/bin/main.go
+      - immortalctl stop marewo-production
+      # - immortalctl halt marewo-production
+      - mv ./marewo-app ../binaries/marewo-production
+      # - immortal -c ../binaries/marewo-production/marewo-production.yaml
+      - immortalctl start marewo-production
       - immortalctl status
   lint-fix:
     cmds:
