@@ -1,0 +1,81 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['.env']
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+  migrate:
+    cmds:
+      - migrate -path db/migrations -database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=${POSTGRES_SSL_MODE}" {{.cmd}}
+  create-migration:
+    cmds:
+      - migrate create -ext sql -dir db/migrations/ {{.name}} -tz UTC
+  seed:
+    cmds:
+      # - go run ./cmd/bin/main.go seed -total={{.total}} -table={{.table}}
+      - go run ./cmd/bin/main.go seed -table={{.table}}
+  dev:
+    cmds:
+      - go run ./cmd/bin/main.go
+  daemon:
+    cmds:
+      - pmgo
+  ws:
+    cmds:
+      - go run ./cmd/bin/main.go ws --port=8080
+  build:
+    cmds:
+      - go build -o ./digihub-app ./cmd/bin/main.go
+  build-dev:
+    cmds:
+      - git pull
+      - go build -o ./digihub-app ./cmd/bin/main.go
+      - immortalctl stop digihub-dev
+      # - immortalctl halt digihub-dev
+      - mv ./digihub-app ../binaries/digihub-dev
+      # - immortal -c ../binaries/digihub-dev/digihub-dev.yaml
+      - immortalctl start digihub-dev
+      - immortalctl status
+  build-staging:
+    cmds:
+      - git pull
+      - go build -o ./digihub-app ./cmd/bin/main.go
+      - immortalctl stop digihub-staging
+      # - immortalctl halt digihub-staging
+      - mv ./digihub-app ../binaries/digihub-staging
+      # - immortal -c ../binaries/digihub-staging/digihub-staging.yaml
+      - immortalctl start digihub-staging
+      - immortalctl status
+  build-production:
+    cmds:
+      - git pull
+      - go build -o ./digihub-app ./cmd/bin/main.go
+      - immortalctl stop digihub-production
+      # - immortalctl halt digihub-production
+      - mv ./digihub-app ../binaries/digihub-production
+      # - immortal -c ../binaries/digihub-production/digihub-production.yaml
+      - immortalctl start digihub-production
+      - immortalctl status
+  lint-fix:
+    cmds:
+      - gofmt -w .
+  lint-ci:
+    cmds:
+      - golangci-lint run
+  nats:
+    cmds:
+      - nats-server --js
+  commit:
+    cmds:
+      - task lint-fix
+      - task lint-ci
+      - git add .
+      - git commit -m "{{.msg}}"
