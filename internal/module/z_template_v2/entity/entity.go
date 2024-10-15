@@ -1,9 +1,9 @@
 package entity
 
-type XxxRequest struct {
+type XxxReq struct {
 }
 
-type XxxResponse struct {
+type XxxResp struct {
 }
 
 type XxxResult struct {

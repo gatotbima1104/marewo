@@ -24,7 +24,7 @@ func NewUserService(repo ports.UserRepository) *userService {
 	}
 }
 
-func (s *userService) Login(ctx context.Context, req *entity.LoginReq) (*entity.LoginRes, error) {
+func (s *userService) Login(ctx context.Context, req *entity.LoginReq) (*entity.LoginResp, error) {
 	user, err := s.repo.FindByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (s *userService) Login(ctx context.Context, req *entity.LoginReq) (*entity.
 		return nil, errmsg.NewCustomErrors(500).SetMessage("Internal Server Error")
 	}
 
-	resp := new(entity.LoginRes)
+	resp := new(entity.LoginResp)
 	resp.Id = user.Id
 	resp.Name = user.Name
 	resp.RoleName = user.RoleName

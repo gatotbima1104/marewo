@@ -11,5 +11,5 @@ type UserRepository interface {
 }
 
 type UserService interface {
-	Login(ctx context.Context, req *entity.LoginReq) (*entity.LoginRes, error)
+	Login(ctx context.Context, req *entity.LoginReq) (*entity.LoginResp, error)
 }

@@ -5,7 +5,7 @@ type LoginReq struct {
 	Password string `json:"password" validate:"required"`
 }
 
-type LoginRes struct {
+type LoginResp struct {
 	Id          string  `json:"id"`
 	Name        string  `json:"name"`
 	RoleName    string  `json:"role_name"`

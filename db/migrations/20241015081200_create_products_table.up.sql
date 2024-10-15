@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS products (
     id CHAR(26) PRIMARY KEY,
     parent_id CHAR(26),
     company_id CHAR(26) NOT NULL,
-    branch_id CHAR(26) NOT NULL,
+    branch_id CHAR(26),
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(19, 4) NOT NULL,
