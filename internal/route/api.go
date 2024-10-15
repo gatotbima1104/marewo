@@ -4,6 +4,7 @@ import (
 	// integlocalstorage "codebase-app/internal/integration/localstorage"
 	m "codebase-app/internal/middleware"
 	appLogHandler "codebase-app/internal/module/app_log/handler"
+	userHandler "codebase-app/internal/module/user/handler"
 
 	"codebase-app/pkg/response"
 	"os"
@@ -16,11 +17,10 @@ import (
 func SetupRoutes(app *fiber.App) {
 	// storage := integlocalstorage.NewLocalStorageIntegration()
 
-	// add /api prefix to all routes
-	api := app.Group("/api")
-	api.Get("/storage/private/:filename", m.ValidateSignedURL, storageFile)
+	app.Get("/storage/private/:filename", m.ValidateSignedURL, storageFile)
 
-	appLogHandler.NewAppLogHandler().Register(api)
+	appLogHandler.NewAppLogHandler().Register(app.Group("/logs"))
+	userHandler.NewUserHandler().Register(app.Group("/users"))
 
 	// fallback route
 	app.Use(func(c *fiber.Ctx) error {

@@ -7,14 +7,14 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-var _ ports.XxxRepository = &xxxRepository{}
+var _ ports.XxxRepository = &xxxRepo{}
 
-type xxxRepository struct {
+type xxxRepo struct {
 	db *sqlx.DB
 }
 
-func NewXxxRepository() *xxxRepository {
-	return &xxxRepository{
+func NewXxxRepository() *xxxRepo {
+	return &xxxRepo{
 		db: adapter.Adapters.Postgres,
 	}
 }

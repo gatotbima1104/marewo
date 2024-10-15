@@ -395,64 +395,30 @@ func (s *excelSeed) SeedUsers(tx *sqlx.Tx) error {
 		}
 
 		switch strings.ToUpper(RoleName) {
-		case "ADMIN":
+		case "ADMIN", "COURIER":
 			query := `
 			INSERT INTO users (
-				id, role_id, name, email, password
+				id, role_id, company_id, branch_id ,name, email, password
 			) VALUES (
 				?,
 				(SELECT id FROM roles WHERE name = ?),
+				(SELECT id FROM companies WHERE name = ?),
+				(SELECT id FROM branches WHERE name = ?),
 				?,
 				?,
 				?
 			) ON CONFLICT (id) DO UPDATE SET
 				role_id = (SELECT id FROM roles WHERE name = ?),
+				company_id = (SELECT id FROM companies WHERE name = ?),
+				branch_id = (SELECT id FROM branches WHERE name = ?),
 				name = ?,
 				email = ?,
 				password = ?
 		`
 
 			_, err = tx.Exec(s.db.Rebind(query),
-				id, RoleName, name, email, string(passwordHashed),
-				RoleName, name, email, string(passwordHashed),
-			)
-			if err != nil {
-				log.Error().Err(err).Msg("failed to insert user")
-				return err
-			}
-		default:
-			//  on conflict update
-			query := `
-			INSERT INTO users (
-				id, name, branch_id, role_id, email, password
-			) VALUES (
-				?,
-				?,
-				(
-					SELECT b.id
-					FROM branches b
-					LEFT JOIN companies c ON b.company_id = c.id
-					WHERE UPPER(b.name) = UPPER(?) AND UPPER(c.name) = UPPER(?)
-				),
-				(SELECT id FROM roles WHERE name = ?),
-				?,
-				?
-			) ON CONFLICT (id) DO UPDATE SET
-				name = ?,
-				branch_id = (
-					SELECT b.id
-					FROM branches b
-					LEFT JOIN companies c ON b.company_id = c.id
-					WHERE UPPER(b.name) = UPPER(?) AND UPPER(c.name) = UPPER(?)
-				),
-				role_id = (SELECT id FROM roles WHERE name = ?),
-				email = ?,
-				password = ?
-		`
-
-			_, err = tx.Exec(s.db.Rebind(query),
-				id, name, branchName, companyName, RoleName, email, string(passwordHashed),
-				name, branchName, companyName, RoleName, email, string(passwordHashed),
+				id, RoleName, companyName, branchName, name, email, string(passwordHashed),
+				RoleName, companyName, branchName, name, email, string(passwordHashed),
 			)
 			if err != nil {
 				log.Error().Err(err).Msg("failed to insert user")
