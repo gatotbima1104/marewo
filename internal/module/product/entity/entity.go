@@ -24,15 +24,18 @@ type CreateProductResp struct {
 }
 
 type GetProductReq struct {
-	Id string `json:"id" validate:"required,ulid"`
+	UserId string
+	Id     string `json:"id" validate:"required,ulid"`
 }
 
 type GetProductResp struct {
-	Id       string  `json:"id" db:"id"`
-	ParentId *string `json:"parent_id" db:"parent_id"`
-	Name     string  `json:"name" db:"name"`
-	Price    float64 `json:"price" dbc:"price"`
-	Stock    int64   `json:"stock" db:"stock"`
+	Id          string  `json:"id" db:"id"`
+	ParentId    *string `json:"parent_id" db:"parent_id"`
+	CompanyId   string  `json:"company_id" db:"company_id"`
+	CompanyName string  `json:"company_name" db:"company_name"`
+	Name        string  `json:"name" db:"name"`
+	Price       float64 `json:"price" dbc:"price"`
+	Stock       int64   `json:"stock" db:"stock"`
 }
 
 type GetProductsReq struct {

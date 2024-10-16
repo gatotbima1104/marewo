@@ -34,6 +34,8 @@ func (h *productHandler) Register(router fiber.Router) {
 		m.AuthRole([]string{"admin"}),
 		h.CreateProduct,
 	)
+
+	router.Get("/:id", h.GetProduct)
 }
 
 func (h *productHandler) CreateProduct(c *fiber.Ctx) error {
@@ -56,6 +58,29 @@ func (h *productHandler) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	res, err := h.service.CreateProduct(ctx, req)
+	if err != nil {
+		code, errs := errmsg.Errors(err, req)
+		return c.Status(code).JSON(response.Error(errs))
+	}
+
+	return c.JSON(response.Success(res, ""))
+}
+
+func (h *productHandler) GetProduct(c *fiber.Ctx) error {
+	var (
+		req = new(entity.GetProductReq)
+		ctx = c.Context()
+		v   = adapter.Adapters.Validator
+	)
+
+	req.Id = c.Params("id")
+
+	if err := v.Validate(req); err != nil {
+		code, errs := errmsg.Errors(err, req)
+		return c.Status(code).JSON(response.Error(errs))
+	}
+
+	res, err := h.service.GetProduct(ctx, req)
 	if err != nil {
 		code, errs := errmsg.Errors(err, req)
 		return c.Status(code).JSON(response.Error(errs))
