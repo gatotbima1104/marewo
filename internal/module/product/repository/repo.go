@@ -82,7 +82,51 @@ func (r *productRepo) GetProduct(ctx context.Context, req *entity.GetProductReq)
 }
 
 func (r *productRepo) GetProducts(ctx context.Context, req *entity.GetProductsReq) (*entity.GetProductsResp, error) {
-	return nil, nil
+	type dao struct {
+		TotalData int `db:"total_data"`
+		entity.ProductItem
+	}
+
+	var (
+		res  = new(entity.GetProductsResp)
+		data = make([]dao, 0)
+	)
+	res.Items = make([]entity.ProductItem, 0)
+
+	query := `
+		WITH user_company AS (
+			SELECT company_id
+			FROM users
+			WHERE id = ?
+		)
+		SELECT
+			COUNT(*) OVER() AS total_data,
+			p.id, p.parent_id, p.name, p.price, p.stock
+		FROM
+			products p
+		WHERE
+			p.deleted_at IS NULL
+			AND p.company_id = (SELECT company_id FROM user_company)
+		ORDER BY p.created_at DESC
+	`
+
+	err := r.db.SelectContext(ctx, &data, r.db.Rebind(query), req.UserId)
+	if err != nil {
+		log.Error().Err(err).Any("req", req).Msg("repo::GetProducts - failed to get products")
+		return nil, err
+	}
+
+	if len(data) > 0 {
+		res.Meta.TotalData = data[0].TotalData
+	}
+
+	for _, d := range data {
+		res.Items = append(res.Items, d.ProductItem)
+	}
+
+	res.Meta.CountTotalPage(req.Page, req.Paginate, res.Meta.TotalData)
+
+	return res, nil
 }
 
 func (r *productRepo) IsProductValid(ctx context.Context, productId, userId string) error {

@@ -39,6 +39,7 @@ type GetProductResp struct {
 }
 
 type GetProductsReq struct {
+	UserId   string
 	Page     int `json:"page" query:"page" validate:"required"`
 	Paginate int `json:"paginate" query:"paginate" validate:"required"`
 }
