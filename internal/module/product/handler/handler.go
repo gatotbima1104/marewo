@@ -11,6 +11,7 @@ import (
 	"codebase-app/pkg/response"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 type productHandler struct {
@@ -32,19 +33,19 @@ func (h *productHandler) Register(router fiber.Router) {
 	router.Post("/",
 		m.AuthBearer,
 		m.AuthRole([]string{"admin"}),
-		h.CreateProduct,
+		h.createProduct,
 	)
 
 	router.Get("/",
 		m.AuthBearer,
 		m.AuthRole([]string{"admin"}),
-		h.GetProducts,
+		h.getProducts,
 	)
 
-	router.Get("/:id", h.GetProduct)
+	router.Get("/:id", h.getProduct)
 }
 
-func (h *productHandler) CreateProduct(c *fiber.Ctx) error {
+func (h *productHandler) createProduct(c *fiber.Ctx) error {
 	var (
 		req = new(entity.CreateProductReq)
 		ctx = c.Context()
@@ -53,26 +54,28 @@ func (h *productHandler) CreateProduct(c *fiber.Ctx) error {
 	)
 
 	if err := c.BodyParser(req); err != nil {
+		log.Warn().Err(err).Msg("handler::createProduct - invalid request")
 		return c.Status(fiber.StatusBadRequest).JSON(response.Error(err))
 	}
 
 	req.UserId = l.UserId
 
 	if err := v.Validate(req); err != nil {
+		log.Warn().Err(err).Any("req", req).Msg("handler::createProduct - invalid request")
 		code, errs := errmsg.Errors(err, req)
 		return c.Status(code).JSON(response.Error(errs))
 	}
 
-	res, err := h.service.CreateProduct(ctx, req)
+	resp, err := h.service.CreateProduct(ctx, req)
 	if err != nil {
-		code, errs := errmsg.Errors(err, req)
+		code, errs := errmsg.Errors[error](err)
 		return c.Status(code).JSON(response.Error(errs))
 	}
 
-	return c.JSON(response.Success(res, ""))
+	return c.JSON(response.Success(resp, ""))
 }
 
-func (h *productHandler) GetProduct(c *fiber.Ctx) error {
+func (h *productHandler) getProduct(c *fiber.Ctx) error {
 	var (
 		req = new(entity.GetProductReq)
 		ctx = c.Context()
@@ -82,20 +85,21 @@ func (h *productHandler) GetProduct(c *fiber.Ctx) error {
 	req.Id = c.Params("id")
 
 	if err := v.Validate(req); err != nil {
+		log.Warn().Err(err).Any("req", req).Msg("handler::getProduct - invalid request")
 		code, errs := errmsg.Errors(err, req)
 		return c.Status(code).JSON(response.Error(errs))
 	}
 
-	res, err := h.service.GetProduct(ctx, req)
+	resp, err := h.service.GetProduct(ctx, req)
 	if err != nil {
-		code, errs := errmsg.Errors(err, req)
+		code, errs := errmsg.Errors[error](err)
 		return c.Status(code).JSON(response.Error(errs))
 	}
 
-	return c.JSON(response.Success(res, ""))
+	return c.JSON(response.Success(resp, ""))
 }
 
-func (h *productHandler) GetProducts(c *fiber.Ctx) error {
+func (h *productHandler) getProducts(c *fiber.Ctx) error {
 	var (
 		req = new(entity.GetProductsReq)
 		ctx = c.Context()
@@ -104,6 +108,7 @@ func (h *productHandler) GetProducts(c *fiber.Ctx) error {
 	)
 
 	if err := c.QueryParser(req); err != nil {
+		log.Warn().Err(err).Msg("handler::getProducts - invalid request")
 		return c.Status(fiber.StatusBadRequest).JSON(response.Error(err))
 	}
 
@@ -111,15 +116,16 @@ func (h *productHandler) GetProducts(c *fiber.Ctx) error {
 	req.SetDefault()
 
 	if err := v.Validate(req); err != nil {
+		log.Warn().Err(err).Any("req", req).Msg("handler::getProducts - invalid request")
 		code, errs := errmsg.Errors(err, req)
 		return c.Status(code).JSON(response.Error(errs))
 	}
 
-	res, err := h.service.GetProducts(ctx, req)
+	resp, err := h.service.GetProducts(ctx, req)
 	if err != nil {
-		code, errs := errmsg.Errors(err, req)
+		code, errs := errmsg.Errors[error](err)
 		return c.Status(code).JSON(response.Error(errs))
 	}
 
-	return c.JSON(response.Success(res, ""))
+	return c.JSON(response.Success(resp, ""))
 }
