@@ -62,3 +62,7 @@ func (s *userService) Login(ctx context.Context, req *entity.LoginReq) (*entity.
 
 	return resp, nil
 }
+
+func (s *userService) GetCouriers(ctx context.Context, req *entity.GetCouriersReq) (*entity.GetCouriersRes, error) {
+	return s.repo.GetCouriers(ctx, req)
+}

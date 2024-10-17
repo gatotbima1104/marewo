@@ -62,3 +62,70 @@ func (r *userRepo) FindByEmail(ctx context.Context, email string) (*entity.UserR
 func (r *userRepo) FindById(ctx context.Context, id string) (*entity.UserResult, error) {
 	return nil, nil
 }
+
+func (r *userRepo) GetCouriers(ctx context.Context, req *entity.GetCouriersReq) (*entity.GetCouriersRes, error) {
+	type dao struct {
+		TotalData int `db:"total_data"`
+		entity.CourierItem
+	}
+
+	var (
+		data = make([]dao, 0)
+		res  entity.GetCouriersRes
+	)
+	res.Items = make([]entity.CourierItem, 0)
+
+	query := `
+		WITH role_courier AS (
+			SELECT
+				id
+			FROM
+				roles
+			WHERE
+				name = 'courier'
+		),
+		user_company AS (
+			SELECT
+				company_id
+			FROM
+				users
+			WHERE
+				id = ?
+		)
+		SELECT
+			COUNT(*) OVER() AS total_data,
+			u.id,
+			u.branch_id,
+			u.name,
+			b.name as branch_name,
+			u.email,
+			u.created_at
+		FROM
+			users u
+		LEFT JOIN
+			branches b
+			ON b.id = u.branch_id
+		WHERE
+			u.role_id = (SELECT id FROM role_courier)
+			AND u.company_id = (SELECT company_id FROM user_company)
+		LIMIT ? OFFSET ?
+	`
+
+	err := r.db.SelectContext(ctx, &data, r.db.Rebind(query), req.UserId, req.Paginate, (req.Page-1)*req.Paginate)
+	if err != nil {
+		log.Error().Err(err).Any("req", req).Msg("repo::GetCouriers - failed to get couriers")
+		return nil, err
+	}
+
+	for _, d := range data {
+		res.Items = append(res.Items, d.CourierItem)
+	}
+
+	if len(res.Items) > 0 {
+		res.Meta.TotalData = data[0].TotalData
+	}
+
+	res.Meta.CountTotalPage(req.Page, req.Paginate, res.Meta.TotalData)
+
+	return &res, nil
+}
