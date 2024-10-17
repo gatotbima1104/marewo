@@ -54,9 +54,9 @@ func (r *deliveryRepo) CreateSchedules(ctx context.Context, req *entity.CreateSc
 
 	queryProduct := `
 		INSERT INTO delivery_items
-			(id, delivery_schedule_id, product_id, product_name, price, quantity)
+			(id, delivery_schedule_id, product_id, product_name, price, quantity, total)
 		VALUES
-			(?, ?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?, ?)
 	`
 
 	queryCompany := `SELECT company_id FROM users WHERE id = ?`
@@ -99,11 +99,19 @@ func (r *deliveryRepo) CreateSchedules(ctx context.Context, req *entity.CreateSc
 					product.Name,
 					product.Price,
 					product.Quantity,
+					product.Price*float64(product.Quantity),
 				)
 				if err != nil {
 					log.Error().Err(err).Any("req", req).Msg("repo::CreateSchedules - failed to insert delivery_items")
 					return nil, err
 				}
+			}
+
+			queryUpdate := `UPDATE delivery_schedules SET total = (SELECT SUM(total) FROM delivery_items WHERE delivery_schedule_id = ?) WHERE id = ?`
+			_, err = tx.ExecContext(ctx, tx.Rebind(queryUpdate), id, id)
+			if err != nil {
+				log.Error().Err(err).Any("req", req).Msg("repo::CreateSchedules - failed to update total")
+				return nil, err
 			}
 
 			res.ScheduleIds = append(res.ScheduleIds, id)

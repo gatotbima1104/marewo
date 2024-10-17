@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS delivery_schedules (
     courier_id CHAR(26) NOT NULL,
     partner_id CHAR(26) NOT NULL,
     status VARCHAR(255) NOT NULL, -- scheduled, on_delivery, delivered, canceled
+    total DECIMAL(19, 4) NOT NULL DEFAULT 0,
     delivery_at TIMESTAMP WITH TIME ZONE NOT NULL,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
