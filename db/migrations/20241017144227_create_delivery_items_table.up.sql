@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS delivery_items (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE,
 
-    FOREIGN KEY (delivery_schedule_id) REFERENCES delivery_schedules(id),
+    FOREIGN KEY (delivery_schedule_id) REFERENCES delivery_schedules(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
