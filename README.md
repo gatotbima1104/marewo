@@ -5,6 +5,7 @@ Backend of Digihub project.
 ## Developer Guide
 
 ### General Rules
+RUBah
 
 * We use conventional commits to deal with git commits: <https://www.conventionalcommits.org>
   * Use `feat: commit message` to do git commit related to feature.
